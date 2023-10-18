@@ -14,6 +14,9 @@ app.use(express.json());
 
 // app.use(notFound);
 // app.use(errorHandler);
+app.get("/ping",(req,res)=>{
+  res.send("Ping")
+})
 
 app.use("/api/user", userRoutes);
 
