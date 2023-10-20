@@ -3,7 +3,7 @@ const User = require("../models/userModel");
 const generateToken = require("../data/generateToken");
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, mailId, password, pic } = req.body;
+  const { name, mailId, password, profilePic } = req.body;
 
   if (!name || !mailId || !password) {
     res.status(400);
@@ -21,7 +21,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     mailId,
     password,
-    pic,
+    profilePic,
   });
 
   if (user) {
@@ -29,7 +29,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       mailId: user.mailId,
-      pic: user.profilePic,
+      profilePic: user.profilePic,
       token: generateToken(user._id),
     });
   } else {
@@ -57,4 +57,15 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerUser, authUser };
+const allUsers = asyncHandler(async (req, res) => {
+  const keyword = req.query.search ? {
+    $or: [
+      { name: { $regex: req.query.search, $options: "i" } },
+      { mailId: { $regex: req.query.search, $options: "i" } }
+    ]
+  } : {};
+  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  res.send(users);
+})
+
+module.exports = { registerUser, authUser, allUsers };
